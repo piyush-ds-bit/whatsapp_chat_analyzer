@@ -10,7 +10,7 @@ import nltk
 def fetch_stats(selected_user,df):
     if selected_user == 'OverAll':
         num_messages=df.shape[0]
-        media=df['Messages'].str.count("<Media omitted>\n").sum()
+        media=df['Messages'].astype(str).str.count("<Media omitted>\n").sum()
         words=[]
         links = []
         url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -138,3 +138,38 @@ def top_user_sentiments(temp_2):
     top_neutral = top_users_sentiment.sort_values(by='Neutral', ascending=False).head(5)
     top_negative = top_users_sentiment.sort_values(by='Negative', ascending=False).head(5)
     return top_positive,top_neutral,top_negative
+
+def personality_one_liner(selected_user, df):
+    if selected_user != 'OverAll':
+        df = df[df['Users'] == selected_user]
+
+    total_msgs = df.shape[0]
+    total_words = df['Messages'].astype(str).apply(lambda x: len(x.split())).sum()
+    media_msgs = df['Messages'].astype(str).str.contains('<Media omitted>').sum()
+    emoji_count = df['Messages'].astype(str).str.count(r'[^\w\s,]').sum()
+    question_marks = df['Messages'].astype(str).str.count(r'\?').sum()
+    caps_count = df['Messages'].astype(str).apply(lambda x: x.isupper()).sum()
+    avg_msg_len = total_words / total_msgs if total_msgs > 0 else 0
+    night_msgs = df[df['Hour'].between(0, 5)].shape[0]
+
+    tags = []
+
+    if total_msgs < 20:
+        tags.append("Silent Observer 👀")
+    if media_msgs / total_msgs > 0.3:
+        tags.append("Media Spammer 📸")
+    if emoji_count / total_msgs > 1:
+        tags.append("The Emoji King 🤴")
+    if night_msgs / total_msgs > 0.5:
+        tags.append("Midnight Philosopher 🌙")
+    if question_marks / total_msgs > 0.2:
+        tags.append("The Question Machine ❓")
+    if caps_count / total_msgs > 0.1:
+        tags.append("Caps Lock Commander 🔊")
+    if avg_msg_len > 25:
+        tags.append("The Storyteller 📖")
+
+    if not tags:
+        tags.append("Just Vibin’ 😎")
+
+    return tags

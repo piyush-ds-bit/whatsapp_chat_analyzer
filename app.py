@@ -41,7 +41,7 @@ if uploaded_file is not None:
         unsafe_allow_html=True
     )
     user_list = df['Users'].dropna().unique().tolist()
-    user_list.remove('Group notifications')
+    user_list = [user for user in user_list if user != 'Group notifications']
     user_list.sort()
     user_list.insert(0,'OverAll')
 
@@ -178,11 +178,30 @@ if uploaded_file is not None:
             unsafe_allow_html=True
         )
 
+
+
+
         st.title("Heat Map")
         user_heatmap = helper.activity_heatmap(selected_user,df)
         fig,ax = plt.subplots()
         ax = sns.heatmap(user_heatmap)
         st.pyplot(fig)
+
+        if selected_user != "OverAll":
+
+            if "generate_summary" not in st.session_state:
+                st.session_state.generate_summary = False
+
+            if st.button("Generate Personality Summary"):
+                st.session_state.generate_summary = True
+
+            if st.session_state.generate_summary:
+                tags = helper.personality_one_liner(selected_user, df)
+                st.success("🧠 Personality Insight:")
+                for tag in tags:
+                    st.markdown(f"- {tag}")
+
+
 
         st.text("-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-           -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
         st.markdown("<h1 style='text-align: center;'>Dhanyavaad</h1>", unsafe_allow_html=True)
@@ -213,6 +232,13 @@ if uploaded_file is not None:
         )
         st.title('Top 5 Negative users')
         st.bar_chart(Top_Negative_sentiments)
+        st.markdown(
+            "<h1 style='color: grey;'>-----------------------------------------------</h1>",
+            unsafe_allow_html=True
+        )
+
+        st.text("-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-           -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
+        st.markdown("<h1 style='text-align: center;'>Dhanyavaad</h1>", unsafe_allow_html=True)
         st.markdown(
             "<h1 style='color: grey;'>-----------------------------------------------</h1>",
             unsafe_allow_html=True

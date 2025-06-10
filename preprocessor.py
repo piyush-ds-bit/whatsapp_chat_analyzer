@@ -5,7 +5,7 @@ from nltk.stem.porter import PorterStemmer
 import nltk
 from dateutil import parser
 def preprocess(data):
-    pattern='\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{1,2}\s-\s'
+    pattern = r'\d{1,2}/\d{1,2}/\d{2,4},\s\d{1,2}:\d{2}(?:\s?[APap][Mm])?\s-\s'
 
     messages=re.split(pattern,data)[1:]
     dates=re.findall(pattern,data)
@@ -24,7 +24,7 @@ def preprocess(data):
             except (ValueError, OverflowError):
                 continue
         return pd.NaT
-    df['Date'] = df['clean_ts'].map(parse_any)
+    df['Date'] = pd.to_datetime(df['clean_ts'].map(parse_any), errors='coerce')
     df.drop(columns=['message_date', 'clean_ts'], inplace=True)
 
     # df['message_date']=pd.to_datetime(df['message_date'],format='%m/%d/%y, %H:%M - ')
@@ -44,6 +44,7 @@ def preprocess(data):
 
     df['Users']=Users
     df['Messages']=Messages
+    df['Messages']=df['Messages'].astype(str)
     df.drop(columns='Users-messages',inplace=True)
 
     df['Year']=df['Date'].dt.year
