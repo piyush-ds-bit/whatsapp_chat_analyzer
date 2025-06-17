@@ -21,7 +21,26 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
+
 st.sidebar.title('WhatsApp Chat Analyzer')
+st.markdown(
+    """
+    <style>
+    .made-in-bharat {
+        position: fixed;
+        left: 10px;
+        bottom: 10px;
+        font-size: 14px;
+        color: #888888;
+        z-index: 9999;
+    }
+    </style>
+    <div class="made-in-bharat">Made in Bharat 🇮🇳</div>
+    """,
+    unsafe_allow_html=True
+)
+
 uploaded_file = st.sidebar.file_uploader("Choose a chat file(.txt)")
 if uploaded_file is not None:
     bytes_data = uploaded_file.getvalue()
